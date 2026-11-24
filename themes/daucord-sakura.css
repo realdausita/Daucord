@@ -1,0 +1,28 @@
+/**
+ * Daucord Sakura — soft blossom pink theme
+ * Part of Daucord (https://github.com/Vendicated/Vencord fork), GPL-3.0-or-later
+ *
+ * Targets classic Discord CSS variables. On the newest Discord (visual refresh),
+ * prefer the built-in DaucordThemes plugin which re-tints the live color system.
+ * Use this file via QuickCSS or as an online/local theme.
+ */
+
+.theme-dark,
+.theme-light {
+    --background-primary: hsl(330 20% 13%);
+    --background-secondary: hsl(330 20% 11%);
+    --background-secondary-alt: hsl(330 20% 10%);
+    --background-tertiary: hsl(330 20% 9%);
+    --background-floating: hsl(330 20% 17%);
+    --channeltextarea-background: hsl(330 20% 16%);
+    --background-modifier-hover: hsl(330 20% 19% / 0.4);
+    --background-modifier-active: hsl(330 20% 21% / 0.5);
+    --background-modifier-selected: hsl(330 20% 23% / 0.6);
+    --background-modifier-accent: hsl(330 20% 27% / 0.4);
+    --scrollbar-auto-thumb: hsl(330 20% 24%);
+    --scrollbar-auto-track: hsl(330 20% 11%);
+    --input-background: hsl(330 20% 10%);
+    --brand-experiment: hsl(325 60% 62%);
+    --brand-experiment-560: hsl(325 60% 54%);
+    --text-link: hsl(325 60% 72%);
+}

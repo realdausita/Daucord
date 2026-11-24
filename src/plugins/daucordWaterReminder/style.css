@@ -1,0 +1,138 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Daucord contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+.daucord-water {
+    --daucord-accent: #4cc9f0;
+    --daucord-accent-dark: #2b9fc7;
+    --daucord-font-size: 14px;
+    --daucord-opacity: 0.94;
+
+    position: fixed;
+    z-index: 999;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    font-family: "gg sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.daucord-water--dragging {
+    cursor: grabbing;
+}
+
+.daucord-water__pill {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 15px 7px;
+    border-radius: 16px;
+    border: 1px solid var(--daucord-border);
+    background: var(--daucord-bg);
+    box-shadow: var(--daucord-shadow);
+    backdrop-filter: blur(16px) saturate(140%);
+    transition:
+        transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1),
+        box-shadow 0.18s ease;
+}
+
+.daucord-water:hover .daucord-water__pill {
+    transform: translateY(-2px);
+    box-shadow: var(--daucord-shadow-hover);
+}
+
+.daucord-water__drop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    color: var(--daucord-accent);
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--daucord-accent) 45%, transparent));
+    animation: daucord-water-float 3.2s ease-in-out infinite;
+}
+
+.daucord-water--no-drop .daucord-water__drop {
+    display: none;
+}
+
+@keyframes daucord-water-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+.daucord-water__texts {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 64px;
+}
+
+.daucord-water__countdown {
+    font-size: var(--daucord-font-size);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: 0.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--daucord-text);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.daucord-water__label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    color: var(--daucord-muted);
+}
+
+.daucord-water--glass {
+    --daucord-bg: rgba(24, 25, 29, var(--daucord-opacity));
+    --daucord-border: rgba(255, 255, 255, 0.09);
+    --daucord-text: #e6e7eb;
+    --daucord-muted: #9a9ca6;
+    --daucord-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    --daucord-shadow-hover: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+.daucord-water--solid {
+    --daucord-bg: #282a2f;
+    --daucord-border: rgba(0, 0, 0, 0.4);
+    --daucord-text: #f2f3f5;
+    --daucord-muted: #a3a5ae;
+    --daucord-shadow: 0 5px 14px rgba(0, 0, 0, 0.35);
+    --daucord-shadow-hover: 0 9px 22px rgba(0, 0, 0, 0.45);
+}
+
+.daucord-water--accent {
+    --daucord-bg: linear-gradient(135deg, var(--daucord-accent), var(--daucord-accent-dark));
+    --daucord-border: rgba(255, 255, 255, 0.18);
+    --daucord-text: #ffffff;
+    --daucord-muted: rgba(255, 255, 255, 0.78);
+    --daucord-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    --daucord-shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.5);
+}
+
+.daucord-water--accent .daucord-water__drop {
+    color: #fff;
+    filter: none;
+}
+
+.daucord-water__upload {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 4px 0;
+}
+
+.daucord-water__upload-hint {
+    font-size: 11px;
+    opacity: 0.7;
+}
