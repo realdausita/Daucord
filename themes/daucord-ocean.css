@@ -1,0 +1,28 @@
+/**
+ * Daucord Ocean — calm deep blue theme
+ * Part of Daucord (https://github.com/Vendicated/Vencord fork), GPL-3.0-or-later
+ *
+ * Targets classic Discord CSS variables. On the newest Discord (visual refresh),
+ * prefer the built-in DaucordThemes plugin which re-tints the live color system.
+ * Use this file via QuickCSS or as an online/local theme.
+ */
+
+.theme-dark,
+.theme-light {
+    --background-primary: hsl(210 34% 12%);
+    --background-secondary: hsl(210 34% 10%);
+    --background-secondary-alt: hsl(210 34% 9%);
+    --background-tertiary: hsl(210 34% 8%);
+    --background-floating: hsl(210 34% 16%);
+    --channeltextarea-background: hsl(210 34% 15%);
+    --background-modifier-hover: hsl(210 34% 18% / 0.4);
+    --background-modifier-active: hsl(210 34% 20% / 0.5);
+    --background-modifier-selected: hsl(210 34% 22% / 0.6);
+    --background-modifier-accent: hsl(210 34% 26% / 0.4);
+    --scrollbar-auto-thumb: hsl(210 34% 23%);
+    --scrollbar-auto-track: hsl(210 34% 10%);
+    --input-background: hsl(210 34% 9%);
+    --brand-experiment: hsl(195 75% 55%);
+    --brand-experiment-560: hsl(195 75% 47%);
+    --text-link: hsl(195 75% 65%);
+}
