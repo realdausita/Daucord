@@ -1,0 +1,165 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Vendicated and contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+import { definePluginSettings, migrateRemovedPlugin } from "@api/Settings";
+import { Devs } from "@utils/constants";
+import { Logger } from "@utils/Logger";
+import definePlugin, { makeRange, OptionType } from "@utils/types";
+import { findByPropsLazy } from "@webpack";
+import { FluxDispatcher } from "@webpack/common";
+
+
+const logger = new Logger("VoiceSettings");
+
+const NoiseModule = findByPropsLazy("setNoiseCancellation");
+
+let _origGUM: (typeof navigator.mediaDevices.getUserMedia) | null = null;
+
+function applyGUMPatch() {
+    if (_origGUM) return;
+    _origGUM = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+
+    navigator.mediaDevices.getUserMedia = async function (constraints) {
+        if (constraints?.audio && typeof constraints.audio === "object") {
+            const s = settings.store;
+            if (s.forceStereo) {
+                (constraints.audio).channelCount = { ideal: 2 };
+            }
+            if (!s.echoCancellation) {
+                (constraints.audio).echoCancellation = false;
+            }
+            if (!s.autoGainControl) {
+                (constraints.audio).autoGainControl = false;
+            }
+            if (s.noiseSuppression === "none") {
+                (constraints.audio).noiseSuppression = false;
+            }
+        }
+        return _origGUM!(constraints);
+    };
+}
+
+function removeGUMPatch() {
+    if (_origGUM) {
+        navigator.mediaDevices.getUserMedia = _origGUM;
+        _origGUM = null;
+    }
+}
+
+function applyNoiseSuppression() {
+    try {
+        const mode = settings.store.noiseSuppression;
+
+        const enableKrisp = mode === "krisp";
+        NoiseModule.setNoiseCancellation(enableKrisp, {});
+    } catch (e) {
+        logger.warn("setNoiseCancellation failed:", e);
+    }
+}
+
+const settings = definePluginSettings({
+    voiceBitrateKbps: {
+        type: OptionType.SLIDER,
+        description: "Opus voice bitrate in kbps. Discord defaults to 64 kbps. Raise for better call quality (uses more bandwidth).",
+        markers: [32, 64, 96, 128, 192, 256, 320, 510],
+        default: 128,
+        stickToMarkers: true,
+    },
+    forceStereo: {
+        type: OptionType.BOOLEAN,
+        description: "Capture microphone in stereo instead of mono. Rejoin voice for the change to take effect.",
+        default: false,
+    },
+    noiseSuppression: {
+        type: OptionType.SELECT,
+        description: "Noise suppression mode for your microphone input. Changing this re-applies immediately.",
+        options: [
+            { label: "Krisp AI (default)", value: "krisp", default: true },
+            { label: "Standard (browser-level)", value: "standard" },
+            { label: "None (raw mic, best for music/instruments)", value: "none" },
+        ],
+    },
+    echoCancellation: {
+        type: OptionType.BOOLEAN,
+        description: "Enable browser-level echo cancellation. Disable for music or instruments (Krisp handles this on its own). Rejoin voice to apply.",
+        default: true,
+    },
+    autoGainControl: {
+        type: OptionType.BOOLEAN,
+        description: "Enable browser-level automatic gain control (normalises mic volume). Disable if you use hardware gain or prefer manual control. Rejoin voice to apply.",
+        default: true,
+    },
+    pttDelayMax: {
+        type: OptionType.SLIDER,
+        description: "Maximum push-to-talk release delay in milliseconds. Discord caps this at 2 000 ms by default.",
+        markers: makeRange(2000, 10000, 1000),
+        default: 5000,
+        stickToMarkers: true,
+        // the settings page reads it once, when its module loads
+        restartNeeded: true,
+    },
+});
+
+migrateRemovedPlugin("VoiceSettings", "rzStudioAudio", { settings: { voiceBitrateKbps: 510 } });
+
+export default definePlugin({
+    name: "VoiceSettings",
+    description: "Fine-grained voice audio controls: Opus bitrate, stereo capture, noise suppression mode, echo cancellation, auto gain control, and extended PTT delay.",
+    tags: ["Voice", "Utility"],
+    authors: [Devs.Daucord],
+    settings,
+
+    patches: [
+
+        {
+            find: ".setTransportOptions({encodingVoiceBitRate:",
+            replacement: {
+                match: /setVoiceBitRate\((\i)\)\{/,
+                replace: "$&$1=$self.settings.store.voiceBitrateKbps*1000;",
+            },
+            noWarn: true,
+        },
+
+        // PTT release delay slider in User Settings > Voice & Video
+        {
+            find: "VOICE_PUSH_TO_TALK_RELEASE_DELAY_SETTING,",
+            replacement: {
+                match: /(VOICE_PUSH_TO_TALK_RELEASE_DELAY_SETTING,.{0,300}?\{delay:\i\}.{0,40}?maxValue:)2e3/,
+                replace: "$1$self.settings.store.pttDelayMax",
+            },
+        },
+        // Same slider in the per-context voice settings modal
+        {
+            find: 'location:"VoiceSettingsModal"',
+            replacement: {
+                match: /(\{delay:\i\},\i\),onValueRender:.{0,100}?maxValue:)2e3/,
+                replace: "$1$self.settings.store.pttDelayMax",
+            },
+        },
+
+        {
+            find: ";usedtx=",
+            replacement: {
+                // Discord's next update writes the test as !1===x
+                match: /;usedtx=\$\{(?:!1===)?\i\?"0":"1"\}/,
+                replace: '$&${$self.settings.store.forceStereo?";stereo=1;sprop-stereo=1":""}',
+            },
+            noWarn: true,
+        },
+    ],
+
+    start() {
+        applyGUMPatch();
+        applyNoiseSuppression();
+
+        FluxDispatcher.subscribe("VOICE_CHANNEL_SELECT", applyNoiseSuppression);
+    },
+
+    stop() {
+        removeGUMPatch();
+        FluxDispatcher.unsubscribe("VOICE_CHANNEL_SELECT", applyNoiseSuppression);
+    },
+});
