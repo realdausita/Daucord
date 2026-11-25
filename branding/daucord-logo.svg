@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="dgrad" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#6f6bf5"/>
+      <stop offset="0.55" stop-color="#7b4ff0"/>
+      <stop offset="1" stop-color="#8b2fd0"/>
+    </linearGradient>
+    <linearGradient id="cgrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3ee0f5"/>
+      <stop offset="1" stop-color="#12a8e6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" rx="168" fill="#23262b"/>
+
+  <!-- C -->
+  <path d="M 470 300 A 230 230 0 1 1 470 640"
+        fill="none" stroke="url(#cgrad)" stroke-width="96" stroke-linecap="round"/>
+
+  <!-- cat (behind the D) -->
+  <g fill="#ffffff">
+    <path d="M 340 262 L 334 214 L 372 240 Z"/>
+    <path d="M 424 240 L 462 214 L 456 262 Z"/>
+    <rect x="330" y="238" width="136" height="86" rx="34"/>
+  </g>
+  <g fill="#f9a8d4">
+    <path d="M 347 253 L 344 228 L 362 242 Z"/>
+    <path d="M 434 242 L 452 228 L 449 253 Z"/>
+  </g>
+  <g fill="none" stroke="#3a3a46" stroke-width="7" stroke-linecap="round">
+    <path d="M 362 280 q 10 10 20 0"/>
+    <path d="M 414 280 q 10 10 20 0"/>
+    <path d="M 393 300 q 7 7 14 0"/>
+  </g>
+
+  <!-- D -->
+  <path fill="url(#dgrad)" fill-rule="evenodd"
+        d="M 330 300 H 512 C 612 300 668 366 668 450 C 668 534 612 600 512 600 H 330 Z
+           M 402 362 H 506 C 552 362 574 400 574 450 C 574 500 552 538 506 538 H 402 Z"/>
+
+  <!-- wing -->
+  <path fill="#ffffff"
+        d="M 320 332 q -34 2 -50 24 q -14 20 2 30 q 14 8 22 -6 q 0 18 16 22 q 16 4 21 -12 q 7 14 22 9 q 17 -6 7 -24 q -20 -33 -40 -43 Z"/>
+
+  <!-- sparkle -->
+  <path fill="#9be7ff"
+        d="M 508 200 L 518 228 L 546 238 L 518 248 L 508 276 L 498 248 L 470 238 L 498 228 Z"/>
+</svg>
