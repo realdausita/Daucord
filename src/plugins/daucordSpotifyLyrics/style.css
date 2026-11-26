@@ -1,0 +1,286 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Daucord contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+.daucord-lyrics {
+    --dc-accent: #1ed760;
+    --dc-accent-soft: #63eb92;
+    --dc-accent-dark: #159c46;
+    --dc-font-size: 16px;
+    --dc-opacity: 0.92;
+
+    position: fixed;
+    z-index: 999;
+    display: none;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    font-family: "gg sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.daucord-lyrics--dragging {
+    cursor: grabbing;
+}
+
+.daucord-lyrics__card {
+    position: relative;
+    padding: 12px 14px 10px;
+    border-radius: 16px;
+    border: 1px solid var(--dc-border);
+    background: var(--dc-bg);
+    box-shadow: var(--dc-shadow);
+    backdrop-filter: blur(18px) saturate(150%);
+    overflow: hidden;
+    transition:
+        transform 0.2s cubic-bezier(0.2, 0.8, 0.3, 1),
+        box-shadow 0.2s ease;
+}
+
+.daucord-lyrics:hover .daucord-lyrics__card {
+    transform: translateY(-2px);
+    box-shadow: var(--dc-shadow-hover);
+}
+
+.daucord-lyrics__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--dc-border);
+}
+
+.daucord-lyrics__cover {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    object-fit: cover;
+    flex: 0 0 auto;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.daucord-lyrics--no-cover .daucord-lyrics__cover {
+    display: none;
+}
+
+.daucord-lyrics__meta {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.daucord-lyrics__title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--dc-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.daucord-lyrics__artist {
+    font-size: 10px;
+    color: var(--dc-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.daucord-lyrics__eq {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 16px;
+    flex: 0 0 auto;
+}
+
+.daucord-lyrics__eq i {
+    width: 3px;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--dc-accent);
+    transform-origin: bottom;
+    animation: dc-eq 0.9s ease-in-out infinite alternate;
+}
+
+.daucord-lyrics__eq i:nth-child(2) {
+    animation-delay: 0.18s;
+}
+.daucord-lyrics__eq i:nth-child(3) {
+    animation-delay: 0.36s;
+}
+.daucord-lyrics__eq i:nth-child(4) {
+    animation-delay: 0.54s;
+}
+
+.daucord-lyrics--paused .daucord-lyrics__eq i {
+    animation-play-state: paused;
+    transform: scaleY(0.35);
+    opacity: 0.55;
+}
+
+@keyframes dc-eq {
+    from {
+        transform: scaleY(0.25);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+.daucord-lyrics__body {
+    position: relative;
+    min-height: 96px;
+    overflow: hidden;
+    padding: 2px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 84%, transparent);
+}
+
+.daucord-lyrics--no-neighbours .daucord-lyrics__body {
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+.daucord-lyrics__stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+.daucord-lyrics__row {
+    max-width: 100%;
+    text-align: center;
+    font-size: var(--dc-font-size);
+    font-weight: 800;
+    line-height: 1.28;
+    letter-spacing: 0.1px;
+    color: var(--dc-text);
+    opacity: 0.42;
+    transform: scale(0.94);
+    transform-origin: center;
+    transition:
+        opacity 0.35s ease,
+        transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.35s ease;
+}
+
+.daucord-lyrics__row.is-past {
+    opacity: 0.24;
+}
+
+.daucord-lyrics__row.is-active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.daucord-lyrics__row--gap {
+    opacity: 0.35;
+    font-weight: 500;
+}
+
+.daucord-lyrics__word {
+    display: inline-block;
+    transition:
+        color 0.16s linear,
+        text-shadow 0.16s ease;
+    color: color-mix(in srgb, var(--dc-text) 42%, transparent);
+}
+
+.daucord-lyrics__row.is-past .daucord-lyrics__word,
+.daucord-lyrics__row--gap {
+    color: color-mix(in srgb, var(--dc-text) 34%, transparent);
+}
+
+.daucord-lyrics__row.is-active .daucord-lyrics__word.is-sung {
+    color: var(--dc-text);
+}
+
+.daucord-lyrics__row.is-active .daucord-lyrics__word.is-active {
+    color: var(--dc-accent-soft);
+    text-shadow:
+        0 0 10px color-mix(in srgb, var(--dc-accent) 60%, transparent),
+        0 0 22px color-mix(in srgb, var(--dc-accent) 35%, transparent);
+}
+
+.daucord-lyrics__progress {
+    height: 3px;
+    margin-top: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.daucord-lyrics__progress-bar {
+    height: 100%;
+    width: 0;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--dc-accent-dark), var(--dc-accent-soft));
+    box-shadow: 0 0 8px var(--dc-accent);
+    transition: width 0.15s linear;
+}
+
+.daucord-lyrics--glass {
+    --dc-bg: rgba(20, 21, 26, var(--dc-opacity));
+    --dc-border: rgba(255, 255, 255, 0.09);
+    --dc-text: #f2f3f5;
+    --dc-muted: #a6a8b2;
+    --dc-shadow: 0 8px 24px rgba(0, 0, 0, 0.42);
+    --dc-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
+
+.daucord-lyrics--solid {
+    --dc-bg: #232428;
+    --dc-border: rgba(0, 0, 0, 0.45);
+    --dc-text: #ffffff;
+    --dc-muted: #aeb0b8;
+    --dc-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    --dc-shadow-hover: 0 10px 26px rgba(0, 0, 0, 0.5);
+}
+
+.daucord-lyrics--accent {
+    --dc-bg: linear-gradient(135deg, var(--dc-accent-dark), var(--dc-bg, #1a1b20));
+    --dc-border: rgba(255, 255, 255, 0.18);
+    --dc-text: #ffffff;
+    --dc-muted: rgba(255, 255, 255, 0.78);
+    --dc-shadow: 0 8px 26px rgba(0, 0, 0, 0.45);
+    --dc-shadow-hover: 0 12px 34px rgba(0, 0, 0, 0.55);
+}
+
+/* Docked above the SpotifyControls player: use Discord's own panel colours */
+.daucord-lyrics--docked {
+    cursor: default;
+}
+
+.daucord-lyrics--docked .daucord-lyrics__card {
+    padding: 10px 12px 8px;
+    border-radius: 8px;
+    background: var(--background-secondary-alt, var(--background-secondary, #2b2d31));
+    border: 1px solid var(--background-modifier-accent, rgba(255, 255, 255, 0.06));
+    box-shadow: none;
+    backdrop-filter: none;
+}
+
+.daucord-lyrics--docked:hover .daucord-lyrics__card {
+    transform: none;
+    box-shadow: none;
+}
+
+.daucord-lyrics--docked .daucord-lyrics__head {
+    display: none;
+}
+
+.daucord-lyrics--docked .daucord-lyrics__body {
+    min-height: 0;
+}
+
+.daucord-lyrics--docked .daucord-lyrics__progress {
+    margin-top: 2px;
+    height: 2px;
+}
