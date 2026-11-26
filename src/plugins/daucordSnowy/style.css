@@ -1,0 +1,30 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Daucord contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+#daucord-snowy-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    pointer-events: none;
+    user-select: none;
+}
+
+body.daucord-snowy::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    pointer-events: none;
+    user-select: none;
+    background:
+        radial-gradient(120% 80% at 50% -20%, rgba(168, 212, 255, 0.14), transparent 70%),
+        linear-gradient(
+            180deg,
+            rgba(150, 200, 255, 0.05),
+            transparent 30%,
+            rgba(150, 200, 255, 0.06)
+        );
+}

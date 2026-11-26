@@ -1,0 +1,98 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Daucord contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+.daucord-clock {
+    --daucord-accent: #7c6cf0;
+    --daucord-accent-dark: #5b4bd6;
+    --daucord-font-size: 14px;
+    --daucord-opacity: 0.94;
+
+    position: fixed;
+    z-index: 999;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    font-family: "gg sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.daucord-clock--dragging {
+    cursor: grabbing;
+}
+
+.daucord-clock__pill {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 7px 16px 6px;
+    border-radius: 14px;
+    border: 1px solid var(--daucord-border);
+    background: var(--daucord-bg);
+    box-shadow: var(--daucord-shadow);
+    backdrop-filter: blur(16px) saturate(140%);
+    transition:
+        transform 0.18s cubic-bezier(0.2, 0.8, 0.3, 1),
+        box-shadow 0.18s ease;
+}
+
+.daucord-clock:hover .daucord-clock__pill {
+    transform: translateY(-2px);
+    box-shadow: var(--daucord-shadow-hover);
+}
+
+.daucord-clock__time {
+    font-size: var(--daucord-font-size);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: 0.4px;
+    font-variant-numeric: tabular-nums;
+    color: var(--daucord-text);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.daucord-clock__seconds {
+    color: var(--daucord-accent);
+}
+
+.daucord-clock__date {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    color: var(--daucord-muted);
+}
+
+.daucord-clock--glass {
+    --daucord-bg: rgba(24, 25, 29, var(--daucord-opacity));
+    --daucord-border: rgba(255, 255, 255, 0.09);
+    --daucord-text: #e6e7eb;
+    --daucord-muted: #9a9ca6;
+    --daucord-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    --daucord-shadow-hover: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+.daucord-clock--solid {
+    --daucord-bg: #282a2f;
+    --daucord-border: rgba(0, 0, 0, 0.4);
+    --daucord-text: #f2f3f5;
+    --daucord-muted: #a3a5ae;
+    --daucord-shadow: 0 5px 14px rgba(0, 0, 0, 0.35);
+    --daucord-shadow-hover: 0 9px 22px rgba(0, 0, 0, 0.45);
+}
+
+.daucord-clock--accent {
+    --daucord-bg: linear-gradient(135deg, var(--daucord-accent), var(--daucord-accent-dark));
+    --daucord-border: rgba(255, 255, 255, 0.18);
+    --daucord-text: #ffffff;
+    --daucord-muted: rgba(255, 255, 255, 0.78);
+    --daucord-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    --daucord-shadow-hover: 0 10px 28px rgba(0, 0, 0, 0.5);
+}
+
+.daucord-clock--accent .daucord-clock__seconds {
+    color: rgba(255, 255, 255, 0.92);
+}
