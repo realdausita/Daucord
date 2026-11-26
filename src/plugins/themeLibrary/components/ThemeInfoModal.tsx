@@ -1,0 +1,237 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Daucord contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+import { CodeBlock } from "@components/CodeBlock";
+import { EndcordModal } from "@components/EndcordModal";
+import { Heading } from "@components/Heading";
+import { Heart } from "@components/Heart";
+import { Paragraph } from "@components/Paragraph";
+import { showToast } from "@plugins/themeLibrary/toast";
+import { Theme, ThemeInfoModalProps } from "@plugins/themeLibrary/types";
+import { ClockIcon, WarningIcon } from "@plugins/themeLibrary/utils/Icons";
+import { openExternal } from "@plugins/themeLibrary/utils/native";
+import { copyToClipboard } from "@utils/clipboard";
+import { openInviteModal } from "@utils/discord";
+import { t } from "@utils/i18n";
+import { Margins } from "@utils/margins";
+import { saveFile } from "@utils/web";
+import { findComponentByCodeLazy } from "@webpack";
+import { Button, openModal, Parser, React, Toasts } from "@webpack/common";
+
+import { logger } from "./ThemeTab";
+
+const UserSummaryItem = findComponentByCodeLazy("defaultRenderUser", "showDefaultAvatarsForNullUsers");
+
+async function downloadTheme(theme: Theme) {
+    try {
+        // No native theme folder in Daucord: save the theme as a regular file instead
+        const css = new TextDecoder().decode(Uint8Array.from(window.atob(theme.content), c => c.charCodeAt(0)));
+        saveFile(new File([css], `${theme.name}.theme.css`, { type: "text/css" }));
+        showToast(`Downloaded ${theme.name}!`, Toasts.Type.SUCCESS);
+    } catch (err: unknown) {
+        logger.error(err);
+        showToast(`Failed to download ${theme.name}! (check console)`, Toasts.Type.FAILURE);
+    }
+}
+
+export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, ...props }) => {
+    const { name, type, content, likes, guild, tags, last_updated, requiresThemeAttributes } = theme;
+
+    const themeContent = window.atob(content);
+    const metadata = themeContent.match(/\/\*\*[\s\S]*?\*\//g)?.[0] || "";
+    const donate = metadata.match(/@donate\s+(.+)/)?.[1] || "";
+    const version = metadata.match(/@version\s+(.+)/)?.[1] || "";
+    const invite = metadata.match(/@invite\s+(.+)/)?.[1] || "";
+
+    const authors = Array.isArray(author) ? author : [author];
+
+    const lastUpdated = Math.floor(new Date(last_updated ?? 0).getTime() / 1000);
+
+    return (
+        <EndcordModal
+            {...props}
+            size="md"
+            title={`${name} details`}
+            actions={[
+                {
+                    text: "Close",
+                    variant: "secondary",
+                    onClick: () => props.onClose()
+                },
+                {
+                    text: "Download",
+                    variant: "primary",
+                    disabled: !theme.content || theme.id === "preview",
+                    onClick: async () => {
+                        const fileName = `${theme?.name}.theme.css`;
+
+                        const exists = false;
+                        if (exists) {
+                            openModal(modalProps => (
+                                <EndcordModal
+                                    {...modalProps}
+                                    size="sm"
+                                    title={t("Conflict!")}
+                                    actions={[
+                                        {
+                                            text: "Overwrite",
+                                            variant: "dangerPrimary",
+                                            onClick: async () => {
+                                                await downloadTheme(theme);
+                                                modalProps.onClose();
+                                            }
+                                        },
+                                        {
+                                            text: "Keep my file",
+                                            variant: "positive",
+                                            onClick: () => modalProps.onClose()
+                                        }
+                                    ]}
+                                >
+                                    <Paragraph style={{ padding: "8px" }}>
+                                        <div style={{ display: "flex", flexDirection: "column" }}>
+                                            <p>{t("A theme with the same name")}{" "}<b>{t("already exists")}</b>{" "}{t("in your themes directory! Do you want to overwrite it?")}</p>
+                                            <div className="vce-overwrite-modal">
+                                                <code style={{ wordWrap: "break-word" }}>
+                                                    {fileName}
+                                                </code>
+                                            </div>
+                                        </div>
+                                    </Paragraph>
+                                </EndcordModal>
+                            ));
+                        } else {
+                            await downloadTheme(theme);
+                        }
+                    }
+                }
+            ]}
+        >
+            <Heading style={{ marginTop: "10px" }}>{authors.length > 1 ? "Authors" : "Author"}</Heading>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+                <div>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        <UserSummaryItem
+                            users={authors}
+                            count={authors.length}
+                            guildId={undefined}
+                            renderIcon={false}
+                            max={4}
+                            size={32}
+                            showDefaultAvatarsForNullUsers
+                            showUserPopout
+                            className={Margins.right8}
+                        />
+                        <Paragraph style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {authors.map(author => author.username).join(", ")}
+                        </Paragraph>
+                    </div>
+                    {version && (
+                        <>
+                            <Heading style={{ marginTop: "10px" }}>{t("Version")}</Heading>
+                            <Paragraph>
+                                {version}
+                            </Paragraph>
+                        </>
+                    )}
+                    <Heading style={{ marginTop: "10px" }}>{t("Likes")}</Heading>
+                    <Paragraph>
+                        {likes === 0 ? `Nobody liked this ${type} yet.` : `${likes} users liked this ${type}!`}
+                    </Paragraph>
+                    {donate && (
+                        <>
+                            <Heading style={{ marginTop: "10px" }}>{t("Donate")}</Heading>
+                            <Paragraph>
+                                {t("You can support the author by donating below!")}</Paragraph>
+                            <Paragraph style={{ marginTop: "10px" }}>
+                                <Button onClick={() => openExternal(donate)}>
+                                    <Heart />
+                                    {t("Donate")}</Button>
+                            </Paragraph>
+                        </>
+                    )}
+                    {(guild || invite) && (
+                        <>
+                            <Heading style={{ marginTop: "10px" }}>{t("Support Server")}</Heading>
+                            {guild && (
+                                <Paragraph>
+                                    {guild.name}
+                                </Paragraph>
+                            )}
+                            <Paragraph>
+                                <Button
+                                    color={Button.Colors.BRAND}
+                                    look={Button.Looks.FILLED}
+                                    className={Margins.top8}
+                                    onClick={async e => {
+                                        e.preventDefault();
+                                        const useInvite = guild ? guild.invite_link?.split("discord.gg/")[1] : invite;
+                                        useInvite != null && openInviteModal(useInvite).catch(() => showToast("Invalid or expired invite!", Toasts.Type.FAILURE));
+                                    }}
+                                >
+                                    {t("Join Discord Server")}</Button>
+                            </Paragraph>
+                        </>
+                    )}
+                    <Heading style={{ marginTop: "10px" }}>{t("Source")}</Heading>
+                    <Paragraph>
+                        <Button
+                            disabled={!theme.content || theme.id === "preview"}
+                            onClick={() => openModal(modalProps => (
+                                <EndcordModal
+                                    {...modalProps}
+                                    size="lg"
+                                    title={t("Theme Source")}
+                                    actions={[
+                                        {
+                                            text: "Close",
+                                            variant: "dangerPrimary",
+                                            onClick: () => modalProps.onClose()
+                                        },
+                                        {
+                                            text: "Copy to Clipboard",
+                                            variant: "primary",
+                                            onClick: () => {
+                                                copyToClipboard(themeContent);
+                                                showToast("Copied to Clipboard", Toasts.Type.SUCCESS);
+                                            }
+                                        }
+                                    ]}
+                                >
+                                    <Paragraph style={{ padding: "8px" }}>
+                                        <CodeBlock lang="css" content={themeContent} />
+                                    </Paragraph>
+                                </EndcordModal>
+                            ))}
+                        >
+                            {t("View Theme Source")}</Button>
+                    </Paragraph>
+                    {tags && (
+                        <>
+                            <Heading style={{ marginTop: "10px" }}>{t("Tags")}</Heading>
+                            <Paragraph>
+                                {tags.map(tag => (
+                                    <span className="vce-theme-info-tag" key={"vce-theme-info-tag"}>
+                                        {tag}
+                                    </span>
+                                ))}
+                            </Paragraph>
+                        </>
+                    )}
+                    {requiresThemeAttributes && (
+                        <Paragraph style={{ marginTop: "10px" }}>
+                            <WarningIcon />{" "}{t("This theme requires the")}{" "}<b>{t("ThemeAttributes")}</b>{" "}{t("plugin!")}</Paragraph>
+                    )}
+                    {last_updated && (
+                        <Paragraph style={{ marginTop: "10px" }}>
+                            <ClockIcon />{" "}{t("This theme was last updated")}{" "}{Parser.parse(`<t:${lastUpdated}:F>`)} ({Parser.parse(`<t:${lastUpdated}:R>`)})
+                        </Paragraph>
+                    )}
+                </div>
+            </div>
+        </EndcordModal>
+    );
+};
