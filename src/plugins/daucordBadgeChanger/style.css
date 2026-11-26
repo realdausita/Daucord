@@ -1,0 +1,83 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Daucord contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+.dc-badge-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 4px 0;
+}
+
+.dc-badge-picker__tools {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dc-badge-picker__count {
+    margin-left: auto;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.dc-badge-picker__hint {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.dc-badge-picker__group-title {
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.75;
+}
+
+.dc-badge-picker__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(122px, 1fr));
+    gap: 6px;
+}
+
+.dc-badge-picker__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid var(--button-secondary-border, rgba(255, 255, 255, 0.08));
+    border-radius: 8px;
+    background: var(--button-secondary-background, rgba(255, 255, 255, 0.04));
+    color: var(--text-normal);
+    font: inherit;
+    font-size: 11px;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+.dc-badge-picker__item:hover {
+    border-color: var(--brand-500, #5865f2);
+}
+
+.dc-badge-picker__item--on {
+    border-color: var(--brand-500, #5865f2);
+    background: color-mix(in srgb, var(--brand-500, #5865f2) 20%, transparent);
+}
+
+.dc-badge-picker__item img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    flex: 0 0 auto;
+}
+
+.dc-badge-picker__item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
