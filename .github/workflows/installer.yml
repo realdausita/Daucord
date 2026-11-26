@@ -1,0 +1,110 @@
+name: Build Installer
+
+on:
+    push:
+        branches:
+            - main
+        tags:
+            - "v*"
+        paths:
+            - .github/workflows/installer.yml
+            - installer/**
+            - src/**
+            - branding/**
+            - package.json
+            - pnpm-lock.yaml
+    pull_request:
+        paths:
+            - .github/workflows/installer.yml
+            - installer/**
+    workflow_dispatch:
+    release:
+        types: [published]
+
+permissions:
+    contents: write
+
+jobs:
+    Installer:
+        runs-on: windows-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build Daucord
+              run: pnpm build
+
+            - name: Build installer executables
+              run: pnpm buildInstaller
+
+            - name: Smoke test CLI
+              shell: bash
+              run: |
+                  ./dist/Installer/DaucordInstallerCli.exe help
+                  ./dist/Installer/DaucordInstallerCli.exe status --branch all || echo "No Discord on the runner; expected"
+
+            - name: Upload installer artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Daucord-Installer
+                  path: |
+                      dist/Installer/DaucordInstaller.exe
+                      dist/Installer/DaucordInstallerCli.exe
+                  if-no-files-found: error
+
+            - name: Generate update manifest
+              if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')
+              shell: bash
+              run: |
+                  TAG="${{ github.event.release.tag_name || github.ref_name }}"
+                  VERSION="${TAG#v}"
+                  BASE="https://github.com/${{ github.repository }}/releases/download/${TAG}"
+                  node scripts/make-update-manifest.mjs --version "$VERSION" --base-url "$BASE" --out updates/manifest.json
+
+            - name: Create release from tag
+              if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+              shell: bash
+              run: |
+                  TAG="${GITHUB_REF_NAME}"
+                  gh release create "$TAG" \
+                      --title "Daucord $TAG" \
+                      --notes "Windows installer and update payload for $TAG. Run DaucordInstaller.exe with Discord installed; restart Discord yourself after it finishes." \
+                      dist/Installer/DaucordInstaller.exe \
+                      dist/Installer/DaucordInstallerCli.exe \
+                      dist/patcher.js \
+                      dist/preload.js \
+                      dist/renderer.js \
+                      dist/renderer.css \
+                      updates/manifest.json
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Attach installers and update payload to release
+              if: github.event_name == 'release'
+              shell: bash
+              run: |
+                  TAG="${{ github.event.release.tag_name }}"
+                  gh release upload "$TAG" \
+                      dist/Installer/DaucordInstaller.exe \
+                      dist/Installer/DaucordInstallerCli.exe \
+                      dist/patcher.js \
+                      dist/preload.js \
+                      dist/renderer.js \
+                      dist/renderer.css \
+                      updates/manifest.json \
+                      --clobber
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

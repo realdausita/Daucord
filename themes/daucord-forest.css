@@ -1,0 +1,28 @@
+/**
+ * Daucord Forest — muted green nature theme
+ * Part of Daucord (https://github.com/Vendicated/Vencord fork), GPL-3.0-or-later
+ *
+ * Targets classic Discord CSS variables. On the newest Discord (visual refresh),
+ * prefer the built-in DaucordThemes plugin which re-tints the live color system.
+ * Use this file via QuickCSS or as an online/local theme.
+ */
+
+.theme-dark,
+.theme-light {
+    --background-primary: hsl(150 18% 11%);
+    --background-secondary: hsl(150 18% 9%);
+    --background-secondary-alt: hsl(150 18% 8%);
+    --background-tertiary: hsl(150 18% 7%);
+    --background-floating: hsl(150 18% 15%);
+    --channeltextarea-background: hsl(150 18% 14%);
+    --background-modifier-hover: hsl(150 18% 17% / 0.4);
+    --background-modifier-active: hsl(150 18% 19% / 0.5);
+    --background-modifier-selected: hsl(150 18% 21% / 0.6);
+    --background-modifier-accent: hsl(150 18% 25% / 0.4);
+    --scrollbar-auto-thumb: hsl(150 18% 22%);
+    --scrollbar-auto-track: hsl(150 18% 9%);
+    --input-background: hsl(150 18% 8%);
+    --brand-experiment: hsl(145 55% 50%);
+    --brand-experiment-560: hsl(145 55% 42%);
+    --text-link: hsl(145 55% 62%);
+}
