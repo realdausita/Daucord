@@ -1,0 +1,20 @@
+.vc-drag-att-item {
+    display: inline-flex;
+    cursor: grab;
+    pointer-events: auto;
+    transition:
+        opacity var(--ec-motion-base) ease,
+        outline-color var(--ec-motion-base) ease,
+        border-radius var(--ec-motion-base) ease;
+}
+
+/* the item left behind after you begin dragging it */
+.vc-drag-att-item.vc-drag-att-dragging {
+    opacity: 0.25;
+}
+
+/* the item being dragged when you hover back over it */
+.vc-drag-att-item.vc-drag-att-dragging.vc-drag-att-drop-target {
+    outline: 2px solid var(--red-360);
+    border-radius: 5px;
+}
