@@ -1,0 +1,28 @@
+/**
+ * Daucord AMOLED — true black theme for OLED screens
+ * Part of Daucord (https://github.com/Vendicated/Vencord fork), GPL-3.0-or-later
+ *
+ * Targets classic Discord CSS variables. On the newest Discord (visual refresh),
+ * prefer the built-in DaucordThemes plugin which re-tints the live color system.
+ * Use this file via QuickCSS or as an online/local theme.
+ */
+
+.theme-dark,
+.theme-light {
+    --background-primary: hsl(240 4% 3%);
+    --background-secondary: hsl(240 4% 2%);
+    --background-secondary-alt: hsl(240 4% 1%);
+    --background-tertiary: hsl(240 4% 0%);
+    --background-floating: hsl(240 4% 7%);
+    --channeltextarea-background: hsl(240 4% 6%);
+    --background-modifier-hover: hsl(240 4% 9% / 0.4);
+    --background-modifier-active: hsl(240 4% 11% / 0.5);
+    --background-modifier-selected: hsl(240 4% 13% / 0.6);
+    --background-modifier-accent: hsl(240 4% 17% / 0.4);
+    --scrollbar-auto-thumb: hsl(240 4% 14%);
+    --scrollbar-auto-track: hsl(240 4% 2%);
+    --input-background: hsl(240 4% 1%);
+    --brand-experiment: hsl(250 65% 60%);
+    --brand-experiment-560: hsl(250 65% 52%);
+    --text-link: hsl(250 65% 70%);
+}
