@@ -1,0 +1,62 @@
+/*
+ * Vencord, a Discord client mod
+ * Copyright (c) 2026 Daucord contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+import { Devs } from "@utils/constants";
+import definePlugin from "@utils/types";
+import { Message } from "@vencord/discord-types";
+import { MessageStore } from "@webpack/common";
+
+export default definePlugin({
+    name: "BetterPlusReacts",
+    authors: [Devs.Daucord],
+    description: "React to an earlier message by typing +:emoji:, with one + per message back",
+    tags: ["Chat", "Emotes"],
+    patches: [
+        {
+            find: ".SLASH_COMMAND_USED,",
+            replacement: [
+                {
+                    match: /\\\+/,
+                    replace: "$&*"
+                },
+                {
+                    match: /\i.trim\(\)/,
+                    replace: "$&.replace(/^\\++/, '+')"
+                },
+                {
+                    match: /=\i\.\i\.getMessages\(\i\.id\)\.last\(\)(?=.{78,85}.getByName\(\i\.)/,
+                    replace: "=$self.getMsgReference()"
+                }
+            ]
+        },
+        {
+            find: "this.props.activeCommandOption,",
+            replacement: [
+                // Enable auto complete for multiple plusses
+                // and set the message reference
+                {
+                    match: /:this.props.currentWord/,
+                    replace: "$&.replace(/^\\++/, '+')"
+                },
+                {
+                    match: /this.props.editorRef.current\)return;/,
+                    replace: "$&$self.setMsgReference(this.props.currentWord.split(':')[0],this.props.channel.id);"
+                }
+            ]
+        },
+    ],
+    message: null as Message | null,
+    getMsgReference() {
+        const { message } = this;
+        this.message = null;
+        return message;
+    },
+    setMsgReference(plusses: string, channelId: string) {
+        const { getMessages } = MessageStore;
+        const array = (getMessages(channelId) as any)._array ?? [];
+        this.message = array[array.length - plusses.split("+").length + 1] ?? null;
+    }
+});
